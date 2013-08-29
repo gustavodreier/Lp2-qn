@@ -1,0 +1,201 @@
+import java.util.Scanner;
+
+public class TravessiaDoDeserto {
+    
+    private int estoque[] = {1,0,0,0,0,0,0,0,0,0};
+    private int maxTanque = 6;
+    private int posição = 0;
+    private int combustivel = maxTanque;
+    private boolean opcoes[] = {false,false,false,false};
+    
+    
+    
+    public void resetaPosicoes() {
+        
+        estoque = new int[]{10000,0,0,0,0,0,0,0,0,0};
+        posição = 0;
+        combustivel = maxTanque;
+        opcoes = new boolean[]{false,false,false,false};
+        
+    }
+    
+    private void avançar() {
+        posição += 1;
+        combustivel -= 1;
+    }
+    
+    private void voltar() {
+        posição -= 1;
+        combustivel -= 1;
+    }
+    
+    private void carregar() {
+        estoque[posição] -= 1;
+        combustivel += 1;
+    }
+    
+    //nao usado na v1.0
+    private void carregar(int i) {
+        if ((this.estoque[this.posição] - i) < 0) {
+            //erro não pode carregar mais que a quantia armazenada
+        }
+        if ((this.combustivel + i) > this.maxTanque) {
+            //erro não pode carregar mais que a quantia máxima de combustível
+        }
+        this.estoque[this.posição] -= i;
+        this.combustivel += i;
+    }
+    
+    private void descarregar() {
+        this.estoque[this.posição] += 1;
+        this.combustivel -= 1;
+    }
+    
+    //nao usado na versao 1.0
+    private void descarregar(int i) {
+        if ((this.combustivel - i) < 0) {
+            //não pode armazenar mais que a quantia que tem no tanque
+            //talvez não deveria nem ficar com 0 de combustível
+        }
+        this.estoque[this.posição] += i;
+        this.combustivel -= i;
+    }
+    
+    private void gameOver() {
+        if (posição == 9) {
+            //ganhou
+            System.out.println("Você ganhou!!!!");
+            imprimeCondicaoAtual();
+            jogarNovamente();
+        } else if (posição!=0 && combustivel == 0 && estoque[posição] == 0) {
+            // perdeu
+            System.out.println("Você perdeu!!!!");
+            imprimeCondicaoAtual();
+            jogarNovamente();
+        }
+    }
+    
+    public void jogarNovamente() {
+        
+        System.out.println("Deseja jogar Novamente?\n" +
+                "1. Sim.\n" +
+                "2. Não.");
+        Scanner sc = new Scanner(System.in);
+        int aux = sc.nextInt();
+        switch (aux) {
+        case 1:
+            resetaPosicoes();
+            jogar();
+            break;
+        case 2:
+            System.exit(0);
+        default:
+            System.out.println("Opcao inválida!");
+            jogarNovamente();
+            break;
+        }
+    }
+    
+    private void imprimeCondicaoAtual() {
+        //mostra infinito na posição 0
+        String aux;
+        if (posição == 0) {
+            aux = "infinito";
+        } else {
+            aux = "" + estoque[posição] + "";
+        }
+        String sAux = "Combustivel = " + combustivel +
+                "\nPosicao = " + posição +
+                "\nEstoque na posição = " + aux + "\n";
+        System.out.println(sAux);
+    }
+    
+    private void testaOpcoes() {
+        for (int i = 0; i < opcoes.length; i++) {
+            opcoes[i] = false;
+        }
+        //pode avançar sempre que tiver combustivel
+        if (combustivel > 0) {
+            opcoes[0] = true;
+        }
+        //voltar pode voltar quando tiver combustivel
+        //e quando não estiver na posição zero
+        if (combustivel > 0 && posição != 0) {
+            opcoes[1] = true;
+        }
+        //pode carregar se houver combustivel na posição atual
+        //e o tanque não estiver cheio
+        if (estoque[posição] > 0 && combustivel < maxTanque) {
+            opcoes[2] = true;
+        }
+        //pode descarregar se tiver combustivel
+        //não pode descarregar na posição 0
+        if (combustivel > 0 && posição != 0) {
+            opcoes[3] = true;
+        }
+    }
+    
+    public void reabastecer() {
+        System.out.println("####Reabastecendo o tanque!####");
+        int diffAux = maxTanque - combustivel;
+        combustivel += diffAux;
+        //nao precissa tirar combustivel da posição inicial,
+        //já que o valor é em tendencia infinito.
+    }
+    
+    public void jogar() {
+        imprimeCondicaoAtual();
+        if (posição == 0 && combustivel < maxTanque ) {
+            reabastecer();
+        } else {
+            testaOpcoes();
+            listaOpcoes();
+        }
+        gameOver();
+        jogar();
+    }
+    
+    public void listaOpcoes() {
+        
+        String saux = "Escolha uma opcao: ";
+        if (opcoes[0] == true) {
+            saux += "\n1. Avançar";
+        }
+        if (opcoes[1] == true) {
+            saux += "\n2. Voltar";
+        }
+        if (opcoes[2] == true) {
+            saux += "\n3. Carregar";
+        }
+        if (opcoes[3] == true) {
+            saux += "\n4. Descarregar";
+        }
+        System.out.println(saux);
+        
+        Scanner sc = new Scanner(System.in);
+        int aux = sc.nextInt() - 1;
+        
+        //System.out.println("aux = " + aux + "\n\n");
+        
+        //se a opcão for falsa manda voltar
+        if (opcoes[aux] == false) {
+            System.out.println("Opcao invalida!!!\nDigite um valor valido.");
+            listaOpcoes();
+        }
+    
+        switch (aux) {
+        case 0:
+            avançar();
+            break;
+        case 1:
+            voltar();
+            break;
+        case 2:
+            carregar();
+            break;
+        case 3:
+            descarregar();
+            break;
+        }
+    }
+}
